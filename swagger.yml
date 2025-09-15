@@ -1,0 +1,144 @@
+swagger: "2.0"
+info:
+  title: Face Attendance API
+  description: API for face recognition-based attendance system
+  version: "1.0.0"
+host: localhost:5000
+schemes:
+  - http
+basePath: /
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /:
+    get:
+      summary: Health check
+      description: Returns server status
+      responses:
+        200:
+          description: Server is running
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              message:
+                type: string
+
+  /process_entry:
+    post:
+      summary: Process attendance entry
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: face_capture
+          in: formData
+          type: file
+          required: true
+          description: Face image file (JPEG)
+      responses:
+        200:
+          description: Attendance result
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              name:
+                type: string
+              id:
+                type: string
+              in_time:
+                type: string
+              confidence:
+                type: string
+              message:
+                type: string
+
+  /handle_checkout:
+    post:
+      summary: Handle student checkout
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+      responses:
+        200:
+          description: Checkout result
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              duration:
+                type: integer
+
+  /retrieve_daily_report/{report_date}:
+    get:
+      summary: Retrieve daily attendance report
+      parameters:
+        - name: report_date
+          in: path
+          required: true
+          type: string
+          description: Date in YYYY-MM-DD format
+      responses:
+        200:
+          description: Daily report
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+              records:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    present:
+                      type: boolean
+                    in_time:
+                      type: string
+                    out_time:
+                      type: string
+                    duration:
+                      type: integer
+              present_rate:
+                type: string
+
+  /add_student_profile:
+    post:
+      summary: Add new student profile and retrain model
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: new_photos
+          in: formData
+          type: file
+          required: true
+          description: 100 face images (JPEG)
+        - name: profile_info
+          in: formData
+          type: string
+          required: true
+          description: JSON string with student details (full_name, id, gender)
+      responses:
+        200:
+          description: Enrollment result
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+              message:
+                type: string
